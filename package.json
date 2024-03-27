@@ -2,6 +2,7 @@
   "name": "root",
   "private": true,
   "license": "MIT",
+  "packageManager": "yarn@1.22.21",
   "workspaces": [
     "packages/*",
     "packages/testing/*",

@@ -1,0 +1,22 @@
+{
+  "name": "@pixocial/nestjs-feishu",
+  "version": "0.0.0",
+  "author": "zhenwu.li",
+  "license": "MIT",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "dependencies": {
+    "@golevelup/nestjs-modules": "^0.7.1",
+    "@golevelup/nestjs-common": "^2.0.0"
+  }
+}
