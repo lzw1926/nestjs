@@ -1,0 +1,25 @@
+{
+  "name": "@pixocial/nestjs-decorators",
+  "version": "0.0.0",
+  "author": "zhenwu.li",
+  "license": "MIT",
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "pack": "yarn pack",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build tsconfig.build.json --watch"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.x",
+    "@nestjs/core": "^10.x",
+    "reflect-metadata": "^0.1.0 || ^0.2.0",
+    "rxjs": "^7.x"
+  }
+}
