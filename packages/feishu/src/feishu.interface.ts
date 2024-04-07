@@ -1,4 +1,4 @@
 export interface FeishuModuleConfig {
   botId: string;
-  chatId: string | Array<string>;
+  chat?: string | Array<string>;
 }
