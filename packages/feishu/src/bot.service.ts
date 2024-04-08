@@ -8,7 +8,7 @@ import { firstValueFrom } from 'rxjs';
 import { FeishuModuleConfig } from './feishu.interface';
 
 type MessageOptions = {
-  env: 'production' | 'development' | 'test';
+  env?: FeishuModuleConfig['env'];
   path?: string;
   uid?: string;
   reqId?: string;
@@ -16,13 +16,16 @@ type MessageOptions = {
 @Injectable()
 export class FeishuBotService {
   private readonly logger: LoggerService;
-
+  private readonly defaultMessageOptions: MessageOptions;
   constructor(
     @InjectFeishuWebhookClient()
     private readonly botWebhook: HttpService,
     @InjectFeishuModuleConfig()
     private readonly feishuModuleConfig: FeishuModuleConfig
   ) {
+    this.defaultMessageOptions = {
+      env: this.feishuModuleConfig?.env,
+    };
     this.logger =
       this.feishuModuleConfig?.logger || new Logger(FeishuBotService.name);
     this.botWebhook.axiosRef.interceptors.response.use(
@@ -58,7 +61,11 @@ export class FeishuBotService {
     return data;
   }
 
-  public async sendCardMsg(content: Record<any, any>, options: MessageOptions) {
+  public async sendCardMsg(
+    content: Record<any, any>,
+    options?: MessageOptions
+  ) {
+    options = { ...this.defaultMessageOptions, ...options };
     const { data } = await firstValueFrom(
       this.botWebhook.post('/', {
         msg_type: 'interactive',
@@ -84,7 +91,7 @@ export class FeishuBotService {
                 {
                   is_short: true,
                   text: {
-                    content: `**接口路径:** ${options.path ?? ''}`,
+                    content: `**接口路径:** ${options?.path ?? ''}`,
                     tag: 'lark_md',
                   },
                 },
@@ -105,7 +112,7 @@ export class FeishuBotService {
                 {
                   is_short: true,
                   text: {
-                    content: `**请求ID:** ${options.reqId ?? ''}`,
+                    content: `**请求ID:** ${options?.reqId ?? ''}`,
                     tag: 'lark_md',
                   },
                 },
@@ -150,10 +157,10 @@ export class FeishuBotService {
             },
           ],
           header: {
-            template: options.env === 'production' ? 'red' : 'yellow',
+            template: options?.env === 'production' ? 'red' : 'yellow',
             title: {
               content:
-                options.env === 'production' ? '🚨 日志告警' : '测试莫慌',
+                options?.env === 'production' ? '🚨 日志告警' : '测试莫慌',
               tag: 'plain_text',
             },
           },
