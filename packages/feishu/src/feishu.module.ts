@@ -28,13 +28,15 @@ export class FeishuModule
   implements OnModuleInit
 {
   private readonly logger = new Logger(FeishuModule.name);
-
+  private static botService: FeishuBotService;
   constructor(
     private readonly externalContextCreator: ExternalContextCreator,
     @InjectFeishuModuleConfig()
-    private readonly feishuModuleConfig: FeishuModuleConfig
+    private readonly feishuModuleConfig: FeishuModuleConfig,
+    private readonly feishuBotService: FeishuBotService
   ) {
     super();
+    FeishuModule.botService = this.feishuBotService;
   }
 
   public async onModuleInit() {
@@ -42,5 +44,9 @@ export class FeishuModule
       this.logger.error('botId is required');
       throw new Error('botId is required');
     }
+  }
+
+  public static getFeishuService() {
+    return FeishuModule.botService;
   }
 }
