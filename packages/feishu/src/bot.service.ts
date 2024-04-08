@@ -1,7 +1,11 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { InjectFeishuWebhookClient } from './feishu.decorators';
+import { Injectable, LoggerService, Logger } from '@nestjs/common';
+import {
+  InjectFeishuModuleConfig,
+  InjectFeishuWebhookClient,
+} from './feishu.decorators';
 import { firstValueFrom } from 'rxjs';
+import { FeishuModuleConfig } from './feishu.interface';
 
 type MessageOptions = {
   env: 'production' | 'development' | 'test';
@@ -11,10 +15,24 @@ type MessageOptions = {
 };
 @Injectable()
 export class FeishuBotService {
+  private readonly logger: LoggerService;
+
   constructor(
     @InjectFeishuWebhookClient()
-    private readonly botWebhook: HttpService
-  ) {}
+    private readonly botWebhook: HttpService,
+    @InjectFeishuModuleConfig()
+    private readonly feishuModuleConfig: FeishuModuleConfig
+  ) {
+    this.logger =
+      this.feishuModuleConfig?.logger || new Logger(FeishuBotService.name);
+    this.botWebhook.axiosRef.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        this.logger.error({ message: 'feishu bot error', error });
+        return Promise.reject(error);
+      }
+    );
+  }
 
   public async sendPlainMsg(title: string, content: string | string[]) {
     const msg = Array.isArray(content) ? content : [content];
@@ -36,6 +54,7 @@ export class FeishuBotService {
         },
       })
     );
+    this.logger.log({ message: 'feishu plain text message sent', data });
     return data;
   }
 
@@ -141,6 +160,7 @@ export class FeishuBotService {
         },
       })
     );
+    this.logger.log({ message: 'feishu card message sent', data });
     return data;
   }
 }

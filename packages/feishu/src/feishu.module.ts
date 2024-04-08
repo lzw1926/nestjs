@@ -1,5 +1,5 @@
 import { createConfigurableDynamicRootModule } from '@golevelup/nestjs-modules';
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
+import { Logger, LoggerService, Module, OnModuleInit } from '@nestjs/common';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import {
   FEISHU_MODULE_CONFIG_TOKEN,
@@ -27,7 +27,7 @@ export class FeishuModule
   )
   implements OnModuleInit
 {
-  private readonly logger = new Logger(FeishuModule.name);
+  private readonly logger: LoggerService;
   private static botService: FeishuBotService;
   constructor(
     private readonly externalContextCreator: ExternalContextCreator,
@@ -36,6 +36,7 @@ export class FeishuModule
     private readonly feishuBotService: FeishuBotService
   ) {
     super();
+    this.logger = feishuModuleConfig?.logger || new Logger(FeishuModule.name);
     FeishuModule.botService = this.feishuBotService;
   }
 
