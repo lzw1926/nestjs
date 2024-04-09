@@ -11,7 +11,7 @@ type MessageOptions = {
   env?: FeishuModuleConfig['env'];
   path?: string;
   uid?: string;
-  reqId?: string;
+  traceId?: string;
 };
 @Injectable()
 export class FeishuBotService {
@@ -112,14 +112,14 @@ export class FeishuBotService {
                 {
                   is_short: true,
                   text: {
-                    content: `**请求ID:** ${options?.reqId ?? ''}`,
+                    content: `**traceId:** ${options?.traceId ?? ''}`,
                     tag: 'lark_md',
                   },
                 },
                 {
                   is_short: true,
                   text: {
-                    content: '**uid:**',
+                    content: `**uid:** ${options?.uid ?? ''}`,
                     tag: 'lark_md',
                   },
                 },
