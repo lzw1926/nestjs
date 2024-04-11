@@ -9,11 +9,8 @@ import { FeishuModuleConfig } from './feishu.interface';
 
 type MessageOptions = {
   env?: FeishuModuleConfig['env'];
-  path?: string;
-  uid?: string;
-  traceId?: string;
   jumpUrl?: string;
-};
+} & Partial<Record<string, string>>;
 @Injectable()
 export class FeishuBotService {
   private readonly logger: LoggerService;
@@ -67,6 +64,7 @@ export class FeishuBotService {
     options?: MessageOptions
   ) {
     options = { ...this.defaultMessageOptions, ...options };
+    const { env, jumpUrl, ...keyMetrics } = options;
     const payload = {
       msg_type: 'interactive',
       card: {
@@ -85,41 +83,13 @@ export class FeishuBotService {
                   tag: 'lark_md',
                 },
               },
-              {
+              ...Object.entries(keyMetrics).map(([key, value]) => ({
                 is_short: true,
                 text: {
-                  content: `**接口路径:** ${options?.path ?? ''}`,
+                  content: `**${key}:** ${value}`,
                   tag: 'lark_md',
                 },
-              },
-              {
-                is_short: true,
-                text: {
-                  content: '',
-                  tag: 'lark_md',
-                },
-              },
-              {
-                is_short: true,
-                text: {
-                  content: '',
-                  tag: 'lark_md',
-                },
-              },
-              {
-                is_short: true,
-                text: {
-                  content: `**traceId:** ${options?.traceId ?? ''}`,
-                  tag: 'lark_md',
-                },
-              },
-              {
-                is_short: true,
-                text: {
-                  content: `**uid:** ${options?.uid ?? ''}`,
-                  tag: 'lark_md',
-                },
-              },
+              })),
             ],
             tag: 'div',
           },
@@ -144,7 +114,7 @@ export class FeishuBotService {
               },
             ],
             tag: 'div',
-            extra: options.jumpUrl
+            extra: jumpUrl
               ? {
                   tag: 'button',
                   text: {
@@ -152,15 +122,15 @@ export class FeishuBotService {
                     tag: 'lark_md',
                   },
                   type: 'primary',
-                  url: options.jumpUrl,
+                  url: jumpUrl,
                 }
               : undefined,
           },
         ],
         header: {
-          template: options?.env === 'production' ? 'red' : 'yellow',
+          template: env === 'production' ? 'red' : 'yellow',
           title: {
-            content: options?.env === 'production' ? '🚨 日志告警' : '测试莫慌',
+            content: env === 'production' ? '🚨 日志告警' : '测试莫慌',
             tag: 'plain_text',
           },
         },
@@ -169,9 +139,7 @@ export class FeishuBotService {
     const { data } = await firstValueFrom(this.botWebhook.post('/', payload));
     if (data.code === 19036) {
       // exceed the message size limit
-      const jumpText = options.jumpUrl
-        ? `，可[点此查看](${options?.jumpUrl})`
-        : '';
+      const jumpText = jumpUrl ? `，可[点此查看](${jumpUrl})` : '';
       payload.card.elements[2].fields = [
         {
           is_short: true,
