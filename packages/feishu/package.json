@@ -1,6 +1,6 @@
 {
   "name": "@pixocial/nestjs-feishu",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "zhenwu.li",
   "license": "MIT",
   "files": [
