@@ -25,6 +25,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       useFactory(config: ConfigService<GlobalConfig, true>) {
         return {
           botId: config.get('feishu.bot', { infer: true }),
+          env: config.get('runningEnv'),
         };
       },
     }),
