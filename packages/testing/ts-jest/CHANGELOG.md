@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.4](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.3...@golevelup/ts-jest@0.5.4) (2024-08-15)
+
+### Bug Fixes
+
+- **ts-jest:** allow setting properties on nested values and overriding cache ([f15bb2e](https://github.com/golevelup/nestjs/commit/f15bb2eb2cc2c2800784ed1dfb25d78c942dbf6d)), closes [#765](https://github.com/golevelup/nestjs/issues/765)
+
+## [0.5.3](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.2...@golevelup/ts-jest@0.5.3) (2024-08-14)
+
+### Bug Fixes
+
+- **ts-jest:** toString doesnt work on nested properties of a mock ([#763](https://github.com/golevelup/nestjs/issues/763)) ([a686104](https://github.com/golevelup/nestjs/commit/a686104d0410d9c7ea17ade303aec4312390a6ec)), closes [#762](https://github.com/golevelup/nestjs/issues/762)
+- **ts-jest:** update cache when setting mock property ([#756](https://github.com/golevelup/nestjs/issues/756)) ([0756cbc](https://github.com/golevelup/nestjs/commit/0756cbc5caea067b5a1869961135502143472405))
+
+## [0.5.2](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.1...@golevelup/ts-jest@0.5.2) (2024-08-12)
+
+### Bug Fixes
+
+- **ts-jest:** fixed nullable mocks issue ([#759](https://github.com/golevelup/nestjs/issues/759)) ([b181b8a](https://github.com/golevelup/nestjs/commit/b181b8aaf3d91302e4fcaaea6f5979499d50ee54)), closes [#757](https://github.com/golevelup/nestjs/issues/757)
+
+## [0.5.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.0...@golevelup/ts-jest@0.5.1) (2024-08-09)
+
+### Bug Fixes
+
+- **ts-sinon:** fixed match all issue of jest mocks ([#752](https://github.com/golevelup/nestjs/issues/752)) ([9e8fd47](https://github.com/golevelup/nestjs/commit/9e8fd4745f4be90d86794088f92a75bb3f070665))
+
 # [0.5.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.4.0...@golevelup/ts-jest@0.5.0) (2024-04-10)
 
 ### Features

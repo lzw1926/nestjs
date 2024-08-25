@@ -29,6 +29,8 @@ import {
   RequestOptions,
   RabbitMQChannelConfig,
   ConsumeOptions,
+  MessageDeserializer,
+  MessageSerializer,
 } from '../rabbitmq.interfaces';
 import {
   getHandlerForLegacyBehavior,
@@ -404,6 +406,7 @@ export class AmqpConnection {
       requestOptions.routingKey,
       payload,
       {
+        ...requestOptions.publishOptions,
         replyTo: DIRECT_REPLY_QUEUE,
         correlationId,
         headers: requestOptions.headers,
@@ -421,9 +424,8 @@ export class AmqpConnection {
     consumeOptions?: ConsumeOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
-      let result: SubscriptionResult;
-      this.selectManagedChannel(msgOptions?.queueOptions?.channel)
-        .addSetup(async (channel) => {
+      this.selectManagedChannel(msgOptions?.queueOptions?.channel).addSetup(
+        async (channel) => {
           const consumerTag = await this.setupSubscriberChannel<T>(
             handler,
             msgOptions,
@@ -431,11 +433,9 @@ export class AmqpConnection {
             originalHandlerName,
             consumeOptions
           );
-          result = { consumerTag };
-        })
-        .then(() => {
-          res(result);
-        });
+          res({ consumerTag });
+        }
+      );
     });
   }
 
@@ -470,11 +470,10 @@ export class AmqpConnection {
             throw new Error('Received null message');
           }
 
-          const response = await this.handleMessage(
-            handler,
-            msg,
-            msgOptions.allowNonJsonMessages
-          );
+          const response = await this.handleMessage(handler, msg, {
+            allowNonJsonMessages: msgOptions.allowNonJsonMessages,
+            deserializer: msgOptions.deserializer,
+          });
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -530,20 +529,16 @@ export class AmqpConnection {
     rpcOptions: MessageHandlerOptions
   ): Promise<SubscriptionResult> {
     return new Promise((res) => {
-      let result: SubscriptionResult;
-      this.selectManagedChannel(rpcOptions?.queueOptions?.channel)
-        .addSetup(async (channel) => {
+      this.selectManagedChannel(rpcOptions?.queueOptions?.channel).addSetup(
+        async (channel) => {
           const consumerTag = await this.setupRpcChannel<T, U>(
             handler,
             rpcOptions,
             channel
           );
-          result = { consumerTag };
           res({ consumerTag });
-        })
-        .then(() => {
-          res(result);
-        });
+        }
+      );
     });
   }
 
@@ -577,11 +572,10 @@ export class AmqpConnection {
             return;
           }
 
-          const response = await this.handleMessage(
-            handler,
-            msg,
-            rpcOptions.allowNonJsonMessages
-          );
+          const response = await this.handleMessage(handler, msg, {
+            allowNonJsonMessages: rpcOptions.allowNonJsonMessages,
+            deserializer: rpcOptions.deserializer,
+          });
 
           if (response instanceof Nack) {
             channel.nack(msg, false, response.requeue);
@@ -656,21 +650,25 @@ export class AmqpConnection {
       headers?: any
     ) => Promise<U>,
     msg: ConsumeMessage,
-    allowNonJsonMessages?: boolean
+    options: {
+      allowNonJsonMessages?: boolean;
+      deserializer?: MessageDeserializer;
+    }
   ) {
     let message: T | undefined = undefined;
     let headers: any = undefined;
+    const deserializer = options.deserializer || this.config.deserializer;
     if (msg.content) {
-      if (allowNonJsonMessages) {
+      if (options.allowNonJsonMessages) {
         try {
-          message = this.config.deserializer(msg.content, msg) as T;
+          message = deserializer(msg.content, msg) as T;
         } catch {
           // Pass raw message since flag `allowNonJsonMessages` is set
           // Casting to `any` first as T doesn't have a type
           message = msg.content.toString() as any as T;
         }
       } else {
-        message = this.config.deserializer(msg.content, msg) as T;
+        message = deserializer(msg.content, msg) as T;
       }
     }
 
