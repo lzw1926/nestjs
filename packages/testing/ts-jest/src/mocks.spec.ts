@@ -8,6 +8,7 @@ interface TestInterface {
   someBool: boolean;
   optional: string | undefined;
   func: (num: number, str: string) => boolean;
+  func2: (entity: TestClass) => void;
 }
 
 class TestClass {
@@ -41,7 +42,7 @@ describe('Mocks', () => {
       const result = mock.switchToHttp().getRequest();
 
       expect(result).toBe(request);
-      expect(mock.switchToHttp).toBeCalledTimes(1);
+      expect(mock.switchToHttp).toHaveBeenCalledTimes(1);
     });
 
     it('should work with truthy values properties', () => {
@@ -83,8 +84,32 @@ describe('Mocks', () => {
 
       const funcResult = mock.func(42, '42');
       expect(funcResult).toBe(false);
-      expect(mock.func).toBeCalledTimes(1);
-      expect(mock.func).toBeCalledWith(42, '42');
+      expect(mock.func).toHaveBeenCalledTimes(1);
+      expect(mock.func).toHaveBeenCalledWith(42, '42');
+    });
+
+    it('should allow mocked properties to be reassigned', () => {
+      const mock = createMock<TestInterface>();
+
+      mock.someNum = 42;
+      expect(mock.someNum).toBe(42);
+
+      mock.someNum = 43;
+      expect(mock.someNum).toBe(43);
+    });
+
+    it('should match mocked instances', () => {
+      const mock = createMock<TestInterface>();
+      const mockedInstance = createMock<TestClass>({ someProperty: 42 });
+
+      mock.func2(mockedInstance);
+      expect(mock.func2).toHaveBeenCalledWith(mockedInstance);
+
+      // In a previous version a bug caused all checks to pass, no matter which parameter was asserted
+      // These tests shall help avoiding regressions
+      expect(mock.func2).not.toHaveBeenCalledWith(42);
+      expect(mock.func2).not.toHaveBeenCalledWith('42');
+      expect(mock.func2).not.toHaveBeenCalledWith(true);
     });
 
     it('should work with classes', () => {
@@ -121,7 +146,7 @@ describe('Mocks', () => {
 
       const result = await mock.doSomethingAsync();
       expect(result).toBe(42);
-      expect(mock.doSomethingAsync).toBeCalledTimes(1);
+      expect(mock.doSomethingAsync).toHaveBeenCalledTimes(1);
     });
 
     it('should work with unknown properties', () => {
@@ -142,6 +167,22 @@ describe('Mocks', () => {
 
       expect(test.base).toEqual(base);
     });
+
+    it('should accept mocks returning nullables', async () => {
+      interface Test {
+        foo(): number | undefined;
+      }
+
+      const mock = createMock<Test>();
+      mock.foo.mockImplementation(() => {
+        return 0;
+      });
+      expect(mock.foo()).toEqual(0);
+      mock.foo.mockImplementation(() => {
+        return undefined;
+      });
+      expect(mock.foo()).toEqual(undefined);
+    });
   });
 
   describe('auto mocked', () => {
@@ -156,11 +197,26 @@ describe('Mocks', () => {
       const second = mock.switchToRpc();
       const third = mock.switchToWs();
 
-      expect(mock.switchToRpc).toBeCalledTimes(2);
-      expect(mock.switchToWs).toBeCalledTimes(1);
+      expect(mock.switchToRpc).toHaveBeenCalledTimes(2);
+      expect(mock.switchToWs).toHaveBeenCalledTimes(1);
       expect(first.getContext).toBeDefined();
       expect(second.getContext).toBeDefined();
       expect(third.getClient).toBeDefined();
+    });
+
+    it('toString should work', () => {
+      const mock = createMock<any>();
+      expect(mock.toString()).toEqual('[object Object]');
+      expect(mock.nested.toString()).toEqual('function () { [native code] }');
+    });
+
+    it('nested properties mocks should be able to set properties and override cache', () => {
+      const mock = createMock<any>();
+      const autoMockedFn = mock.nested.f;
+      expect(typeof autoMockedFn).toEqual('function');
+      const myFn = () => 5;
+      mock.nested.f = myFn;
+      expect(mock.nested.f === myFn).toBeTruthy();
     });
 
     it('should allow for mock implementation on automocked properties', () => {
@@ -173,7 +229,7 @@ describe('Mocks', () => {
 
       const result = executionContextMock.switchToHttp().getRequest();
       expect(result).toBe(request);
-      expect(httpArgsHost.getRequest).toBeCalledTimes(1);
+      expect(httpArgsHost.getRequest).toHaveBeenCalledTimes(1);
     });
 
     it('should automock promises so that they are awaitable', async () => {
@@ -185,7 +241,7 @@ describe('Mocks', () => {
 
       const result = await mock.doSomethingAsync();
       expect(result).toBeDefined();
-      expect(mock.doSomethingAsync).toBeCalledTimes(1);
+      expect(mock.doSomethingAsync).toHaveBeenCalledTimes(1);
     });
 
     it('should automock objects returned from automocks', () => {
@@ -198,8 +254,8 @@ describe('Mocks', () => {
       expect(request1).toBe(request);
       expect(request2).toBe(request);
 
-      expect(mock.switchToHttp).toBeCalledTimes(3);
-      expect(mock.switchToHttp().getRequest).toBeCalledTimes(2);
+      expect(mock.switchToHttp).toHaveBeenCalledTimes(3);
+      expect(mock.switchToHttp().getRequest).toHaveBeenCalledTimes(2);
     });
 
     it('should automock objects returned from automocks recursively', () => {
@@ -278,8 +334,9 @@ describe('Mocks', () => {
       }).compile();
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
-      dependentProvider =
-        module.get<{ dependent: () => string }>(dependentToken);
+      dependentProvider = module.get<{ dependent: () => string }>(
+        dependentToken
+      );
     });
 
     it('should correctly resolve mocked providers', async () => {

@@ -89,7 +89,9 @@ export class StripeModule
     const noOneSecretProvided =
       this.stripeModuleConfig.webhookConfig &&
       !this.stripeModuleConfig.webhookConfig?.stripeSecrets.account &&
-      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connect;
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.accountTest &&
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connect &&
+      !this.stripeModuleConfig.webhookConfig?.stripeSecrets.connectTest;
 
     if (noOneSecretProvided) {
       const errorMessage =
@@ -146,7 +148,7 @@ export class StripeModule
 
     const handleWebhook = async (webhookEvent: { type: string }) => {
       const { type } = webhookEvent;
-      const handlers = webhookHandlers.filter((x) => x.key === type);
+      const handlers = webhookHandlers.filter((x) => x.key === type || x.key === '*');
 
       if (handlers.length) {
         if (
