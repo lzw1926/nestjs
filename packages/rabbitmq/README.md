@@ -435,6 +435,39 @@ export class MessagingService {
 }
 ```
 
+### Consumer-side Message Batching
+
+Messages can be presented as a batch to the handler. This works by accumulating messages on the consumer-side until either a batch size limit is reached or the batch timer expires. After handling, all messages in the batch will be acked (or nacked) automatically.
+
+This behaviour is configured in the `batchOptions` property:
+
+```typescript
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+
+const batchErrorHandler = (channel, messages, error) => {
+  console.log(`Received message batch of length: ${messages.length}`);
+};
+
+@Injectable()
+export class MessagingService {
+  @RabbitSubscribe({
+    exchange: 'exchange1',
+    routingKey: 'batch-route',
+    queue: 'batch-queue',
+    batchOptions: {
+      size: 10,
+      timeout: 200,
+      errorHandler: batchErrorHandler,
+    },
+  })
+  public async batchHandler(messages) {
+    console.log(`Received message batch of length: ${messages.length}`);
+  }
+}
+```
+
+An error handler may be provided here if your error handling logic needs to be aware of the batch, otherwise it will fall back to either the top-level `errorHandler` or the default error handling behaviour.
+
 ## Sending Messages
 
 ### Inject the AmqpConnection
@@ -455,10 +488,10 @@ export class AppController {
 If you just want to publish a message onto a RabbitMQ exchange, use the `publish` method of the `AmqpConnection` which has the following signature:
 
 ```typescript
-public publish<T = any>(
+public publish(
   exchange: string,
   routingKey: string,
-  message: T,
+  message: any,
   options?: amqplib.Options.Publish
 )
 ```
@@ -467,14 +500,6 @@ For example:
 
 ```typescript
 amqpConnection.publish('some-exchange', 'routing-key', { msg: 'hello world' });
-
-// optionally specify a type for generic type checking support
-interface CustomModel {
-  foo: string;
-  bar: string;
-}
-amqpConnection.publish<CustomModel>('some-exchange', 'routing-key', {});
-// this will now show an error that you are missing properties: foo, bar
 ```
 
 ### Requesting Data from an RPC

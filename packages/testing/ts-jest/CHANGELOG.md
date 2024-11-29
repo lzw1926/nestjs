@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.6.1](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.6.0...@golevelup/ts-jest@0.6.1) (2024-11-12)
+
+### Bug Fixes
+
+- **ts-jest:** ts-jest: toPrimitive should not be set on proxies, but … ([#879](https://github.com/golevelup/nestjs/issues/879)) ([4188b84](https://github.com/golevelup/nestjs/commit/4188b841a16dd7989866a14d40277cb72508d869))
+
+# [0.6.0](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.6...@golevelup/ts-jest@0.6.0) (2024-11-06)
+
+### Bug Fixes
+
+- **ts-jest:** ensures auto mocked properties can be casted to primitive types ([#850](https://github.com/golevelup/nestjs/issues/850)) ([60cc5f8](https://github.com/golevelup/nestjs/commit/60cc5f8f96086ee4621d32a68b7fbaab49733c38)), closes [#843](https://github.com/golevelup/nestjs/issues/843)
+
+### Features
+
+- **rabbitmq:** adds a message batching mechanism for RabbitMQ handlers ([#781](https://github.com/golevelup/nestjs/issues/781)) ([ce44d4d](https://github.com/golevelup/nestjs/commit/ce44d4dfaad05333cacd916c95dbf20089c91790))
+
+## [0.5.6](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.5...@golevelup/ts-jest@0.5.6) (2024-09-24)
+
+### Bug Fixes
+
+- fixed nullable mocks issue ([#787](https://github.com/golevelup/nestjs/issues/787)) ([e9560d7](https://github.com/golevelup/nestjs/commit/e9560d7f5f6da3ff215327127733e2d02e89002c)), closes [#757](https://github.com/golevelup/nestjs/issues/757) [#778](https://github.com/golevelup/nestjs/issues/778)
+
+## [0.5.5](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.4...@golevelup/ts-jest@0.5.5) (2024-09-03)
+
+### Bug Fixes
+
+- **ts-jest:** asymmetricMatch should be undefined for nested mocks ([3b78f75](https://github.com/golevelup/nestjs/commit/3b78f75d98066d4bc2c4c87bcc60c12a63d8ff8d)), closes [#767](https://github.com/golevelup/nestjs/issues/767)
+
 ## [0.5.4](https://github.com/golevelup/nestjs/compare/@golevelup/ts-jest@0.5.3...@golevelup/ts-jest@0.5.4) (2024-08-15)
 
 ### Bug Fixes

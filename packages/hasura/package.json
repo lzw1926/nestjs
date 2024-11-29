@@ -1,6 +1,6 @@
 {
   "name": "@golevelup/nestjs-hasura",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "description": "Badass utilities for integrating Hasura and NestJS",
   "author": "Jesse Carter <jesse.r.carter@gmail.com>",
   "homepage": "https://github.com/golevelup/nestjs#readme",
@@ -36,12 +36,12 @@
     "access": "public"
   },
   "dependencies": {
-    "@golevelup/nestjs-common": "^2.0.0",
-    "@golevelup/nestjs-discovery": "^4.0.1",
-    "@golevelup/nestjs-modules": "^0.7.1",
+    "@golevelup/nestjs-common": "workspace:^",
+    "@golevelup/nestjs-discovery": "workspace:^",
+    "@golevelup/nestjs-modules": "workspace:^",
     "@hasura/metadata": "^1.0.2",
     "js-yaml": "^4.1.0",
-    "zod": "^3.3.4"
+    "zod": "^3.23.8"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -59,7 +59,7 @@
   },
   "gitHead": "6f97aab8ce9d65dc074750a3ee467ec5ff3b9908",
   "devDependencies": {
-    "@types/js-yaml": "^3.12.5",
+    "@types/js-yaml": "^4.0.9",
     "ts-toolbelt": "^9.6.0"
   }
 }

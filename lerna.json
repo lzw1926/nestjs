@@ -1,14 +1,10 @@
 {
-  "packages": [
-    "packages/*",
-    "packages/testing/*"
-  ],
   "version": "independent",
-  "npmClient": "yarn",
-  "useWorkspaces": true,
+  "npmClient": "pnpm",
   "command": {
     "publish": {
       "conventionalCommits": true
     }
-  }
+  },
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }

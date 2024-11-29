@@ -9,6 +9,7 @@ interface TestInterface {
   optional: string | undefined;
   func: (num: number, str: string) => boolean;
   func2: (entity: TestClass) => void;
+  func3: () => Promise<{ prop: number }>;
 }
 
 class TestClass {
@@ -183,6 +184,22 @@ describe('Mocks', () => {
       });
       expect(mock.foo()).toEqual(undefined);
     });
+
+    it('should accept nullable values using mockReturnValueOnce and allow for chaining', async () => {
+      interface Test {
+        foo(): boolean;
+      }
+      const serviceMock = createMock<Test>();
+      jest
+        .spyOn(serviceMock, 'foo')
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(false)
+        .mockReturnValueOnce(true);
+
+      expect(serviceMock.foo()).toEqual(true);
+      expect(serviceMock.foo()).toEqual(false);
+      expect(serviceMock.foo()).toEqual(true);
+    });
   });
 
   describe('auto mocked', () => {
@@ -208,6 +225,39 @@ describe('Mocks', () => {
       const mock = createMock<any>();
       expect(mock.toString()).toEqual('[object Object]');
       expect(mock.nested.toString()).toEqual('function () { [native code] }');
+    });
+
+    it('nested properties should equal its partial', () => {
+      const mock = createMock<any>({ foo: { bar: 1 } });
+      expect({ mock }).toEqual({ mock: { foo: { bar: 1 } } });
+      expect({ foo: mock.foo }).toEqual({ foo: { bar: 1 } });
+    });
+
+    it('nested properties can not be implictly casted to string/number', () => {
+      const mock = createMock<{ nested: any }>();
+
+      const testFnNumber = () => mock.nested > 0;
+      const testFnString = () => `${mock.nested}`;
+
+      expect(testFnNumber).toThrowError();
+      expect(testFnString).toThrowError();
+    });
+
+    it('mocked functions returned values can not be implictly casted to string/number', async () => {
+      const mock = createMock<TestInterface>();
+      const result = await mock.func3();
+
+      const testFnNumber = () => result.prop > 0;
+      const testFnString = () => `${result.prop}`;
+
+      expect(testFnNumber).toThrowError();
+      expect(testFnString).toThrowError();
+    });
+
+    it('asymmetricMatch should not be set', () => {
+      const mock = createMock<any>();
+      expect(mock.asymmetricMatch).toBeUndefined();
+      expect(mock.nested.asymmetricMatch).toBeUndefined();
     });
 
     it('nested properties mocks should be able to set properties and override cache', () => {
@@ -335,7 +385,7 @@ describe('Mocks', () => {
 
       mockedProvider = module.get<DeepMocked<ExecutionContext>>(diToken);
       dependentProvider = module.get<{ dependent: () => string }>(
-        dependentToken
+        dependentToken,
       );
     });
 
@@ -347,7 +397,7 @@ describe('Mocks', () => {
       mockedProvider.switchToHttp.mockReturnValueOnce(
         createMock<HttpArgumentsHost>({
           getRequest: () => request,
-        })
+        }),
       );
 
       const mockResult = mockedProvider.switchToHttp().getRequest();
